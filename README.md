@@ -213,4 +213,5 @@ If AI question generation fails, the app uses built-in fallback questions so the
 - Improve accessibility and responsive design
 
 ## Author
-
+- Riya Gupta
+- Ritesh Agrawal
