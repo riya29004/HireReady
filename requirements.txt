@@ -4,3 +4,4 @@ Flask-Bcrypt
 groq
 gunicorn
 python-dotenv
+requests
