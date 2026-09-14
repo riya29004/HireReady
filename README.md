@@ -1,6 +1,6 @@
 # HireReady
 
-HireReady is an AI-powered interview preparation web application for Computer Science students. It helps students practise core CS subjects, ask doubts to subject-specific AI agents, take mock interviews, and track their weak topics over time.
+HireReady is an AI-powered interview preparation web application for Computer Science students. It helps students practice core CS subjects, ask doubts to subject-specific AI agents, take mock interviews, and track their weak topics over time.
 
 ## Overview
 
