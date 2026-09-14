@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HireReady — Mock Interview</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/interview.css') }}">
+</head>
+<body>
+
+<!-- Mobile overlay -->
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- ══════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════ -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-text">Hire<span>Ready</span></span>
+    <button class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse">◀</button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <span class="nav-section-label">Main</span>
+    <a href="/dashboard" class="nav-item">
+      <span class="nav-icon">🏠</span><span class="nav-text">Dashboard</span>
+    </a>
+
+    <span class="nav-section-label">AI Agents</span>
+    <a href="/dsa"  class="nav-item"><span class="nav-icon">🧩</span><span class="nav-text">DSA</span></a>
+    <a href="/dbms" class="nav-item"><span class="nav-icon">🗄️</span><span class="nav-text">DBMS</span></a>
+    <a href="/os"   class="nav-item"><span class="nav-icon">💻</span><span class="nav-text">Operating Systems</span></a>
+    <a href="/cn"   class="nav-item"><span class="nav-icon">🌐</span><span class="nav-text">Computer Networks</span></a>
+
+    <span class="nav-section-label">Practice</span>
+    <a href="/interview" class="nav-item active">
+      <span class="nav-icon">🎯</span><span class="nav-text">Mock Interview</span>
+    </a>
+    <a href="/progress" class="nav-item">
+      <span class="nav-icon">📊</span><span class="nav-text">Progress</span>
+    </a>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">{{ session.get('user_name','U')[0].upper() }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ session.get('user_name','User') }}</div>
+        <div class="user-email">{{ session.get('user_email','') }}</div>
+      </div>
+    </div>
+    <button class="theme-toggle-row" onclick="toggleTheme()">
+      <div class="theme-toggle-left">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+        <span class="theme-label" id="themeLabel">Dark mode</span>
+      </div>
+      <div class="toggle-switch"><div class="toggle-knob"></div></div>
+    </button>
+    <button class="logout-row" onclick="handleLogout()">
+      <span class="logout-icon">🚪</span>
+      <span class="logout-text">Logout</span>
+    </button>
+  </div>
+</aside>
+
+<!-- ══════════════════════════════════════
+     MAIN
+══════════════════════════════════════ -->
+<div class="main" id="main">
+
+  <!-- Topbar -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <span class="topbar-greeting">Mock <span>Interview</span></span>
+    </div>
+    <div class="topbar-right">
+      <!-- Live timer — hidden until interview starts -->
+      <div class="iv-timer" id="ivTimer" style="display:none;">
+        <span class="iv-timer-icon">⏱</span>
+        <span id="timerDisplay" class="iv-timer-val">00:00</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="iv-page-wrap">
+
+    <!-- ════════════════════════════════
+         SCREEN A — SETUP
+    ════════════════════════════════ -->
+    <!-- Changed: wrap setup area so interview.js can show/hide it correctly. -->
+    <div id="screenSetup" class="iv-screen">
+        <!-- ── Left: config ── -->
+        <div class="iv-config-card">
+
+          <div class="iv-config-header">
+            <div class="iv-pill-badge">🎯 Configure Interview</div>
+            <h1 class="iv-config-title">
+              Set up your<br><span>Mock Interview</span>
+            </h1>
+            <p class="iv-config-sub">
+              Pick your subjects, difficulty and question count.
+              The Interview Generator generates a fresh interview every time.
+            </p>
+          </div>
+
+          <!-- Subjects -->
+          <div class="iv-field-group">
+            <div class="iv-field-label">Subjects to cover</div>
+            <div class="iv-subject-grid">
+              <button class="iv-subj-btn active" data-subject="dsa" onclick="toggleSubject(this)">
+                <span class="iv-subj-icon">🧩</span>
+                <span class="iv-subj-name">DSA</span>
+                <span class="iv-subj-check">✓</span>
+              </button>
+              <button class="iv-subj-btn active" data-subject="dbms" onclick="toggleSubject(this)">
+                <span class="iv-subj-icon">🗄️</span>
+                <span class="iv-subj-name">DBMS</span>
+                <span class="iv-subj-check">✓</span>
+              </button>
+              <button class="iv-subj-btn active" data-subject="os" onclick="toggleSubject(this)">
+                <span class="iv-subj-icon">💻</span>
+                <span class="iv-subj-name">OS</span>
+                <span class="iv-subj-check">✓</span>
+              </button>
+              <button class="iv-subj-btn active" data-subject="cn" onclick="toggleSubject(this)">
+                <span class="iv-subj-icon">🌐</span>
+                <span class="iv-subj-name">CN</span>
+                <span class="iv-subj-check">✓</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Difficulty -->
+          <div class="iv-field-group">
+            <div class="iv-field-label">Difficulty level</div>
+            <div class="iv-diff-row">
+              <button class="iv-diff-btn" data-level="easy" onclick="setDifficulty(this)">
+                <span class="iv-diff-dot easy"></span> Easy
+              </button>
+              <button class="iv-diff-btn active" data-level="medium" onclick="setDifficulty(this)">
+                <span class="iv-diff-dot medium"></span> Medium
+              </button>
+              <button class="iv-diff-btn" data-level="hard" onclick="setDifficulty(this)">
+                <span class="iv-diff-dot hard"></span> Hard
+              </button>
+            </div>
+          </div>
+
+          <!-- Question count -->
+          <div class="iv-field-group">
+            <div class="iv-field-label">Number of questions</div>
+            <div class="iv-count-wrap">
+              <button class="iv-count-btn" onclick="changeCount(-1)" aria-label="Decrease">−</button>
+              <span class="iv-count-val" id="qCountDisplay">5</span>
+              <button class="iv-count-btn" onclick="changeCount(+1)" aria-label="Increase">+</button>
+            </div>
+            <div class="iv-field-hint">Recommended: 5–10 for a focused session</div>
+          </div>
+
+          <!-- Type -->
+          <div class="iv-field-group">
+            <div class="iv-field-label">Question type</div>
+            <div class="iv-type-row">
+              <button class="iv-type-btn active" data-type="mixed"     onclick="setType(this)">Mixed</button>
+              <button class="iv-type-btn"         data-type="theory"    onclick="setType(this)">Theory</button>
+              <button class="iv-type-btn"         data-type="practical" onclick="setType(this)">Practical</button>
+            </div>
+          </div>
+
+          <!-- Start button -->
+          <button class="iv-start-btn" id="startBtn" onclick="startInterview()">
+            <span id="startBtnLabel">Generate Interview ✦</span>
+            <span id="startBtnLoader" class="iv-loader" style="display:none;">
+              <span></span><span></span><span></span>
+            </span>
+          </button>
+
+        </div><!-- /iv-config-card -->
+    </div><!-- /screenSetup -->
+
+    <!-- ════════════════════════════════
+         SCREEN B — ACTIVE INTERVIEW
+    ════════════════════════════════ -->
+    <div id="screenInterview" class="iv-screen" style="display:none;">
+
+      <!-- Progress rail -->
+      <div class="iv-progress-rail">
+        <div class="iv-progress-steps" id="progressSteps"></div>
+        <div class="iv-progress-label" id="progressLabel">Question 1 of 5</div>
+      </div>
+
+      <div class="iv-interview-wrap" id="interviewWrap">
+
+        <!-- Question card -->
+        <div class="iv-q-card" id="qCard">
+          <div class="iv-q-meta">
+            <span class="iv-q-tag" id="qTag">DSA</span>
+            <span class="iv-q-diff" id="qDiff">Medium</span>
+            <span class="iv-q-num" id="qNum">Q1</span>
+          </div>
+          <div class="iv-q-text" id="qText">
+            <!-- Question text injected here -->
+          </div>
+        </div>
+
+        <!-- Answer area -->
+        <div class="iv-answer-block">
+          <div class="iv-answer-label">Your answer</div>
+          <textarea
+            id="answerInput"
+            class="iv-answer-textarea"
+            placeholder="Write your answer here as you would in a real interview. Be detailed — cover the concept, give an example, and mention any tradeoffs or complexity if applicable."
+            rows="8"
+          ></textarea>
+          <div class="iv-answer-footer">
+            <span class="iv-answer-hint">Write your full answer before submitting — the AI evaluates completeness.</span>
+            <button class="iv-submit-btn" id="submitBtn" onclick="submitAnswer()">
+              <span id="submitBtnLabel">Submit Answer →</span>
+              <span id="submitBtnLoader" class="iv-loader" style="display:none;"><span></span><span></span><span></span></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Feedback card — hidden until answer submitted -->
+        <div class="iv-feedback-card" id="feedbackCard" style="display:none;">
+
+          <div class="iv-feedback-top">
+            <div class="iv-score-pill" id="scorePill">—</div>
+            <div class="iv-feedback-heading">
+              <div class="iv-feedback-title">AI Feedback</div>
+              <div class="iv-feedback-subtitle" id="feedbackScoreLabel">—</div>
+            </div>
+          </div>
+
+          <div class="iv-feedback-body" id="feedbackBody"></div>
+
+          <div class="iv-model-answer-box">
+            <div class="iv-model-label">✅ Model Answer</div>
+            <div class="iv-model-body" id="modelAnswerBody"></div>
+          </div>
+
+          <div class="iv-feedback-actions">
+            <button class="iv-next-btn" id="nextBtn" onclick="nextQuestion()">
+              <span id="nextBtnLabel">Next Question →</span>
+            </button>
+          </div>
+
+        </div><!-- /feedbackCard -->
+
+      </div><!-- /interviewWrap -->
+    </div><!-- /screenInterview -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN C — RESULTS
+    ════════════════════════════════ -->
+    <div id="screenResults" class="iv-screen" style="display:none;">
+      <div class="iv-results-wrap">
+
+        <!-- Score hero -->
+        <div class="iv-score-hero">
+          <div class="iv-ring-wrap">
+            <svg class="iv-ring-svg" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+              <circle class="iv-ring-bg"   cx="60" cy="60" r="50" fill="none" stroke-width="8"/>
+              <circle class="iv-ring-prog" cx="60" cy="60" r="50" fill="none" stroke-width="8"
+                id="ringProg"
+                stroke-dasharray="314.16"
+                stroke-dashoffset="314.16"
+                stroke-linecap="round"/>
+            </svg>
+            <div class="iv-ring-inner">
+              <span class="iv-ring-score" id="finalScore">—</span>
+              <span class="iv-ring-denom">/10</span>
+            </div>
+          </div>
+          <div class="iv-score-copy">
+            <div class="iv-score-title"  id="resultTitle">Interview Complete!</div>
+            <div class="iv-score-tagline" id="resultTagline">Here's your performance breakdown.</div>
+            <div class="iv-score-meta" id="scoreMeta">
+              <!-- e.g. "5 questions · 8m 34s" -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Per-question breakdown -->
+        <div class="iv-results-card">
+          <div class="iv-results-card-title">📋 Question Breakdown</div>
+          <div class="iv-breakdown-list" id="breakdownList"></div>
+        </div>
+
+        <!-- Subject performance -->
+        <div class="iv-results-card">
+          <div class="iv-results-card-title">📊 Subject Performance</div>
+          <div class="iv-subject-perf" id="subjectPerf"></div>
+        </div>
+
+        <!-- Action row -->
+        <div class="iv-results-actions">
+          <button class="iv-btn-retry" onclick="retryInterview()">🔄 Try Again</button>
+          <a class="iv-btn-progress" href="/progress">📊 View Progress →</a>
+          <a class="iv-btn-dashboard" href="/dashboard">🏠 Dashboard</a>
+        </div>
+
+      </div>
+    </div><!-- /screenResults -->
+
+  </div><!-- /iv-page-wrap -->
+</div><!-- /main -->
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/interview.js') }}"></script>
+</body>
+</html>

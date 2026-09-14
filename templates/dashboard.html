@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HireReady — Dashboard</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+  <!-- ── SIDEBAR OVERLAY (mobile) ── -->
+  <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <!-- ================================================================
+       SIDEBAR
+  ================================================================ -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar-brand">
+      <a href="/" class="brand-text">Hire<span>Ready</span></a>
+      <!-- Collapse / expand toggle -->
+      <button class="sidebar-toggle" id="sidebarToggle"
+              onclick="toggleSidebar()" title="Collapse sidebar">&#9664;</button>
+    </div>
+
+    <nav class="sidebar-nav">
+
+      <!-- Main -->
+      <div class="nav-section-label">Main</div>
+
+      <a href="/dashboard" class="nav-item active">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-text">Dashboard</span>
+      </a>
+      <a href="/progress" class="nav-item">
+        <span class="nav-icon">📊</span>
+        <span class="nav-text">Progress Report</span>
+      </a>
+
+      <!-- Subjects (was: AI Agents) -->
+      <div class="nav-section-label">Subjects</div>
+
+      <a href="/dsa" class="nav-item">
+        <span class="nav-icon">🧩</span>
+        <span class="nav-text">DSA</span>
+      </a>
+      <a href="/dbms" class="nav-item">
+        <span class="nav-icon">🗄️</span>
+        <span class="nav-text">DBMS</span>
+      </a>
+      <a href="/os" class="nav-item">
+        <span class="nav-icon">💻</span>
+        <span class="nav-text">Operating Systems</span>
+      </a>
+      <a href="/cn" class="nav-item">
+        <span class="nav-icon">🌐</span>
+        <span class="nav-text">Computer Networks</span>
+      </a>
+
+      <!-- Interview -->
+      <div class="nav-section-label">Interview</div>
+
+      <a href="/interview" class="nav-item">
+        <span class="nav-icon">🎯</span>
+        <span class="nav-text">Mock Interview</span>
+        {% if weak_topics %}
+          <span class="nav-badge">!</span>
+        {% endif %}
+      </a>
+
+    </nav>
+
+    <!-- Sidebar footer — fixed at bottom -->
+    <div class="sidebar-footer">
+
+      <!-- User pill -->
+      <div class="user-pill">
+        <div class="user-avatar">
+          {{ session.get('user_name', 'U')[0].upper() }}
+        </div>
+        <div class="user-info">
+          <div class="user-name">{{ session.get('user_name', 'User') }}</div>
+          <div class="user-email">{{ session.get('user_email', '') }}</div>
+        </div>
+      </div>
+
+      <!-- Theme toggle (above logout) -->
+      <button class="theme-toggle-row" id="themeToggle" onclick="toggleTheme()" title="Toggle dark/light mode">
+        <div class="theme-toggle-left">
+          <span class="theme-icon" id="themeIcon">🌙</span>
+          <span class="theme-label nav-text" id="themeLabel">Dark mode</span>
+        </div>
+        <!-- Pill switch -->
+        <div class="toggle-switch" id="toggleSwitch">
+          <div class="toggle-knob" id="toggleKnob"></div>
+        </div>
+      </button>
+
+      <!-- Logout button — distinct red tone, fixed at very bottom -->
+      <button class="logout-row" onclick="handleLogout()">
+        <span class="logout-icon">⏻</span>
+        <span class="logout-text nav-text">Log out</span>
+      </button>
+
+    </div>
+
+  </aside>
+
+
+  <!-- ================================================================
+       MAIN
+  ================================================================ -->
+  <div class="main">
+
+    <!-- Top bar -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button>
+        <div class="topbar-greeting">
+          Good {{ time_of_day }}, <span>{{ session.get('user_name', 'there') }}</span> 👋
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="streak-chip">🔥 {{ streak }} day streak</div>
+      </div>
+    </header>
+
+    <!-- Content -->
+    <div class="content">
+
+      <!-- ── STAT CARDS ── -->
+      <div class="stat-cards">
+
+        <div class="stat-card">
+          <div class="stat-card-icon sc-blue">🧠</div>
+          <div class="stat-card-body">
+            <div class="stat-card-val">{{ total_doubts }}<span></span></div>
+            <div class="stat-card-lbl">Doubts This Week</div>
+            <div class="stat-card-sub">Last 7 days</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon sc-purple">🎯</div>
+          <div class="stat-card-body">
+            <div class="stat-card-val">{{ interviews_done }}<span></span></div>
+            <div class="stat-card-lbl">Interviews Done</div>
+            <div class="stat-card-sub">All time</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon sc-teal">📚</div>
+          <div class="stat-card-body">
+            <div class="stat-card-val">{{ subjects_active }}<span>/4</span></div>
+            <div class="stat-card-lbl">Subjects Active</div>
+            <div class="stat-card-sub">DSA · DBMS · OS · CN</div>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-card-icon sc-orange">⚡</div>
+          <div class="stat-card-body">
+            <div class="stat-card-val">{{ weak_count }}<span></span></div>
+            <div class="stat-card-lbl">Weak Topics</div>
+            <div class="stat-card-sub">Needs attention</div>
+          </div>
+        </div>
+
+      </div>
+
+
+      <!-- ── MAIN GRID ── -->
+      <div class="dash-grid">
+
+        <!-- LEFT column -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+
+          <!-- Subject Quick Access -->
+          <div class="section-card">
+            <div class="section-card-header">
+              <div class="section-card-title"><span>📚</span> Subjects</div>
+              <span class="section-card-action" onclick="window.location.href='/'">See all</span>
+            </div>
+            <div class="section-card-body">
+              <div class="subject-quick">
+
+                <a href="/dsa" class="sq-card">
+                  <div class="sq-icon sc-blue">🧩</div>
+                  <div>
+                    <div class="sq-title">DSA</div>
+                    <div class="sq-sub">Data Structures</div>
+                  </div>
+                  <span class="sq-arrow">→</span>
+                </a>
+
+                <a href="/dbms" class="sq-card">
+                  <div class="sq-icon sc-purple">🗄️</div>
+                  <div>
+                    <div class="sq-title">DBMS</div>
+                    <div class="sq-sub">Databases</div>
+                  </div>
+                  <span class="sq-arrow">→</span>
+                </a>
+
+                <a href="/os" class="sq-card">
+                  <div class="sq-icon sc-orange">💻</div>
+                  <div>
+                    <div class="sq-title">OS</div>
+                    <div class="sq-sub">Operating Systems</div>
+                  </div>
+                  <span class="sq-arrow">→</span>
+                </a>
+
+                <a href="/cn" class="sq-card">
+                  <div class="sq-icon sc-teal">🌐</div>
+                  <div>
+                    <div class="sq-title">CN</div>
+                    <div class="sq-sub">Computer Networks</div>
+                  </div>
+                  <span class="sq-arrow">→</span>
+                </a>
+
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Doubts -->
+          <div class="section-card">
+            <div class="section-card-header">
+              <div class="section-card-title"><span>💬</span> Recent Doubts</div>
+              <span class="section-card-action" onclick="window.location.href='/progress'">View all</span>
+            </div>
+            <div class="section-card-body">
+
+              {% if recent_doubts %}
+                <div class="doubt-list">
+                  {% for doubt in recent_doubts %}
+                  <div class="doubt-item">
+                    <span class="doubt-subject-tag tag-{{ doubt.subject | lower }}">
+                      {{ doubt.subject }}
+                    </span>
+                    <span class="doubt-text">{{ doubt.question }}</span>
+                    <span class="doubt-time">{{ doubt.time_ago }}</span>
+                  </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="empty-state">
+                  <div class="empty-state-icon">💬</div>
+                  No doubts yet this week.<br>Start chatting with an AI agent!
+                </div>
+              {% endif %}
+
+            </div>
+          </div>
+
+        </div>
+
+
+        <!-- RIGHT column -->
+        <div style="display:flex; flex-direction:column; gap:20px;">
+
+          <!-- Weak Topics -->
+          <div class="section-card">
+            <div class="section-card-header">
+              <div class="section-card-title"><span>⚠️</span> Weak Topics</div>
+              <span class="section-card-action" onclick="window.location.href='/progress'">Details</span>
+            </div>
+            <div class="section-card-body">
+
+              {% if weak_topics %}
+                <div class="weak-list">
+                  {% for topic in weak_topics %}
+                  <div class="weak-item">
+                    <div class="weak-item-top">
+                      <span class="weak-topic">{{ topic.name }}</span>
+                      <span class="weak-pct">{{ topic.doubt_count }} doubts</span>
+                    </div>
+                    <div class="weak-bar">
+                      <div class="weak-fill" style="width: {{ topic.pct }}%"></div>
+                    </div>
+                  </div>
+                  {% endfor %}
+                </div>
+              {% else %}
+                <div class="empty-state">
+                  <div class="empty-state-icon">✅</div>
+                  No weak topics yet.<br>Keep practising!
+                </div>
+              {% endif %}
+
+            </div>
+          </div>
+
+          <!-- Mock Interview CTA -->
+          <div class="interview-cta">
+            <div class="interview-cta-title">
+              🎯 Ready for a Mock Interview?
+            </div>
+            <div class="interview-cta-desc">
+              {% if weak_topics %}
+                We found <strong>{{ weak_count }} weak topic(s)</strong>.
+                Your next interview will focus on those areas.
+              {% else %}
+                You're looking strong! Your next interview will be
+                a mixed comprehensive round.
+              {% endif %}
+            </div>
+            <button class="btn-start-interview"
+                    onclick="window.location.href='/interview'">
+              Start Interview →
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+      <!-- end dash-grid -->
+
+    </div>
+    <!-- end content -->
+
+  </div>
+  <!-- end main -->
+
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

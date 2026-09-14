@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HireReady — Progress Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/progress.css') }}">
+</head>
+<body>
+
+<div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <span class="brand-text">Hire<span>Ready</span></span>
+    <button class="sidebar-toggle" onclick="toggleSidebar()">◀</button>
+  </div>
+  <nav class="sidebar-nav">
+    <span class="nav-section-label">Main</span>
+    <a href="/dashboard" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-text">Dashboard</span></a>
+    <span class="nav-section-label">Subjects</span>
+    <a href="/dsa"  class="nav-item"><span class="nav-icon">🧩</span><span class="nav-text">DSA</span></a>
+    <a href="/dbms" class="nav-item"><span class="nav-icon">🗄️</span><span class="nav-text">DBMS</span></a>
+    <a href="/os"   class="nav-item"><span class="nav-icon">💻</span><span class="nav-text">Operating Systems</span></a>
+    <a href="/cn"   class="nav-item"><span class="nav-icon">🌐</span><span class="nav-text">Computer Networks</span></a>
+    <span class="nav-section-label">Practice</span>
+    <a href="/interview" class="nav-item"><span class="nav-icon">🎯</span><span class="nav-text">Mock Interview</span></a>
+    <a href="/progress"  class="nav-item active"><span class="nav-icon">📊</span><span class="nav-text">Progress</span></a>
+  </nav>
+  <div class="sidebar-footer">
+    <div class="user-pill">
+      <div class="user-avatar">{{ session.get('user_name','U')[0].upper() }}</div>
+      <div class="user-info">
+        <div class="user-name">{{ session.get('user_name','User') }}</div>
+        <div class="user-email">{{ session.get('user_email','') }}</div>
+      </div>
+    </div>
+    <button class="theme-toggle-row" onclick="toggleTheme()">
+      <div class="theme-toggle-left">
+        <span class="theme-icon" id="themeIcon">🌙</span>
+        <span class="theme-label" id="themeLabel">Dark mode</span>
+      </div>
+      <div class="toggle-switch"><div class="toggle-knob"></div></div>
+    </button>
+    <button class="logout-row" onclick="handleLogout()">
+      <span class="logout-icon">🚪</span><span class="logout-text">Logout</span>
+    </button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" onclick="toggleSidebar()">☰</button>
+      <span class="topbar-greeting">Progress <span>Report</span></span>
+    </div>
+    <div class="topbar-right">
+      <!-- Range selector -->
+      <div class="range-tabs">
+        <button class="range-tab active" data-days="7"  onclick="setRange(this,7)">7 days</button>
+        <button class="range-tab"        data-days="14" onclick="setRange(this,14)">14 days</button>
+        <button class="range-tab"        data-days="30" onclick="setRange(this,30)">30 days</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- ── STAT CARDS ── -->
+    <div class="stat-cards">
+      <div class="stat-card">
+        <div class="stat-card-icon sc-blue">📚</div>
+        <div>
+          <div class="stat-card-val" id="statTotalDoubts">—</div>
+          <div class="stat-card-lbl">Total Doubts</div>
+          <div class="stat-card-sub" id="statDoubtsChange">— vs last period</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon sc-teal">🎯</div>
+        <div>
+          <div class="stat-card-val" id="statInterviews">—</div>
+          <div class="stat-card-lbl">Interviews Done</div>
+          <div class="stat-card-sub" id="statAvgScore">Avg score: —</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon sc-purple">🔥</div>
+        <div>
+          <div class="stat-card-val" id="statStreak">—</div>
+          <div class="stat-card-lbl">Day Streak</div>
+          <div class="stat-card-sub" id="statStreakSub">Keep it going!</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-icon sc-orange">⏱</div>
+        <div>
+          <div class="stat-card-val" id="statStudyTime">—</div>
+          <div class="stat-card-lbl">Study Time</div>
+          <div class="stat-card-sub" id="statStudyTimeSub">— avg per day</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MAIN GRID ── -->
+    <div class="progress-grid">
+
+      <!-- LEFT COLUMN -->
+      <div class="progress-left">
+
+        <!-- Activity heatmap -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-title">📅 Daily Activity</div>
+            <span class="section-card-action" id="heatmapRange">Last 7 days</span>
+          </div>
+          <div class="section-card-body">
+            <div class="heatmap-wrap" id="heatmapWrap"></div>
+            <div class="heatmap-legend">
+              <span class="hm-label">Less</span>
+              <div class="hm-swatch hm-0"></div>
+              <div class="hm-swatch hm-1"></div>
+              <div class="hm-swatch hm-2"></div>
+              <div class="hm-swatch hm-3"></div>
+              <div class="hm-swatch hm-4"></div>
+              <span class="hm-label">More</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Subject breakdown bar chart -->
+        <div class="section-card" style="margin-top:20px;">
+          <div class="section-card-header">
+            <div class="section-card-title">📊 Doubts by Subject</div>
+          </div>
+          <div class="section-card-body">
+            <div class="subject-bars" id="subjectBars"></div>
+          </div>
+        </div>
+
+        <!-- Interview score history -->
+        <div class="section-card" style="margin-top:20px;">
+          <div class="section-card-header">
+            <div class="section-card-title">🎯 Interview Score History</div>
+          </div>
+          <div class="section-card-body">
+            <div class="score-history-chart" id="scoreHistoryChart"></div>
+            <div class="score-history-list" id="scoreHistoryList"></div>
+          </div>
+        </div>
+
+        <!-- Changed: move Subject Coverage to the left column so the layout uses the full screen width better. -->
+        <div class="section-card" style="margin-top:20px;">
+          <div class="section-card-header">
+            <div class="section-card-title">ðŸŽ¯ Subject Coverage</div>
+          </div>
+          <div class="section-card-body">
+            <div class="coverage-grid" id="coverageGrid"></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT COLUMN -->
+      <div class="progress-right">
+
+        <!-- Gap analysis -->
+        <div class="section-card">
+          <div class="section-card-header">
+            <div class="section-card-title">🔍 Gap Analysis</div>
+            <span class="section-card-action" onclick="window.location='/interview'">Practice weak topics →</span>
+          </div>
+          <div class="section-card-body">
+            <div class="gap-list" id="gapList"></div>
+          </div>
+        </div>
+
+        <!-- Recent doubts log -->
+        <div class="section-card" style="margin-top:20px;">
+          <div class="section-card-header">
+            <div class="section-card-title">💬 Recent Doubts</div>
+            <span class="section-card-action" id="showAllDoubts" onclick="toggleAllDoubts()">Show all</span>
+          </div>
+          <div class="section-card-body" style="padding:12px 22px;">
+            <div class="doubt-log-list" id="doubtLogList"></div>
+          </div>
+        </div>
+
+        <!-- Changed: old Subject Coverage position kept commented instead of removed. -->
+        <!--
+        <div class="section-card" style="margin-top:20px;">
+          <div class="section-card-header">
+            <div class="section-card-title">🎯 Subject Coverage</div>
+          </div>
+          <div class="section-card-body">
+            <div class="coverage-grid" id="coverageGrid"></div>
+          </div>
+        </div>
+        -->
+
+      </div>
+    </div><!-- /progress-grid -->
+
+    <!-- Changed: add strength distribution and subject-wise difficulty charts. -->
+    <div class="progress-grid extra-progress-grid" style="margin-top:20px;">
+      <div class="section-card">
+        <div class="section-card-header">
+          <div>
+            <div class="section-card-title">🧩 Strength Distribution</div>
+            <div class="section-card-subtitle">Overall performance across all topics</div>
+          </div>
+        </div>
+        <div class="section-card-body">
+          <div id="strengthPieWrap"></div>
+        </div>
+      </div>
+
+      <div class="section-card">
+        <div class="section-card-header">
+          <div>
+            <div class="section-card-title">📊 Subject-wise Difficulty Level</div>
+            <div class="section-card-subtitle">Based on doubts and current weak-topic evidence</div>
+          </div>
+        </div>
+        <div class="section-card-body">
+          <div id="difficultyBarWrap"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Changed: add subject-wise strength table at the end of the progress page. -->
+    <div class="section-card strength-table-card" style="margin-top:20px;">
+      <div class="section-card-header">
+        <div class="section-card-title">📋 Subject Wise Strength</div>
+      </div>
+      <div class="section-card-body">
+        <div id="strengthTableWrap"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<script src="{{ url_for('static', filename='js/progress.js') }}"></script>
+</body>
+</html>

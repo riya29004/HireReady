@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- Basic meta setup -->
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HireReady — Login</title>
+
+  <!-- Google Fonts (Inter font for modern UI) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Linking external CSS file -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+
+  <!-- ── NAVBAR SECTION ── -->
+  <nav class="nav">
+    <!-- Logo / Brand Name -->
+    <a href="/" class="nav-brand">Hire<span>Ready</span></a>
+  </nav>
+
+
+  <!-- ── MAIN AUTH PAGE WRAPPER ── -->
+  <main class="auth-page">
+
+    <!-- LEFT SIDE PANEL (Branding + Features Info) -->
+    <div class="auth-left">
+      <div class="auth-left-inner">
+
+        <!-- Badge showing product type -->
+        <div class="brand-badge">
+          <span class="badge-dot"></span>
+          Multi-Agent AI · Beta
+        </div>
+
+        <!-- Main heading -->
+        <h2>Your AI-powered<br>CS interview co-pilot</h2>
+
+        <!-- Description -->
+        <p>
+          Chat with subject-specific AI agents, track your doubts
+          over 7 days, and get mock interviews tailored to your
+          weak topics — all in one place.
+        </p>
+
+        <!-- Feature list -->
+        <div class="feature-list">
+          <div class="feature-item">
+            <span class="fi-icon">🧩</span>
+            <span>DSA · DBMS · OS · CN AI Agents</span>
+          </div>
+          <div class="feature-item">
+            <span class="fi-icon">📊</span>
+            <span>7-day doubt history &amp; progress report</span>
+          </div>
+          <div class="feature-item">
+            <span class="fi-icon">🎯</span>
+            <span>Personalised mock interviews</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+
+    <!-- RIGHT SIDE PANEL (Login / Signup Card) -->
+    <div class="auth-right">
+      <div class="auth-card">
+
+        <!-- Tabs for switching between Login and Signup -->
+        <div class="auth-tabs">
+          <button class="tab active" id="tab-login" onclick="switchTab('login')">Log in</button>
+          <button class="tab" id="tab-signup" onclick="switchTab('signup')">Sign up</button>
+        </div>
+
+
+        <!-- ── LOGIN FORM ── -->
+        <form id="form-login" class="auth-form" method="POST" action="/auth/login">
+
+          <!-- Flask Flash Messages (for errors/success alerts) -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+
+          <!-- Email input -->
+          <div class="form-group">
+            <label class="form-label" for="login-email">Email</label>
+            <input
+              class="form-input"
+              type="email"
+              id="login-email"
+              name="email"
+              placeholder="you@email.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <!-- Password input with toggle -->
+          <div class="form-group">
+            <label class="form-label" for="login-password">Password</label>
+            <div class="input-wrap">
+              <input
+                class="form-input"
+                type="password"
+                id="login-password"
+                name="password"
+                placeholder="••••••••"
+                required
+                autocomplete="current-password"
+              />
+              <!-- Button to toggle password visibility -->
+              <button type="button" class="toggle-pw" onclick="togglePassword('login-password', this)">
+                👁
+              </button>
+            </div>
+          </div>
+
+          <!-- Remember me + Forgot password -->
+          <div class="form-row">
+            <label class="checkbox-wrap">
+              <input type="checkbox" name="remember"> Remember me
+            </label>
+            <a href="/forgot-password" class="forgot-link">Forgot password?</a>
+          </div>
+
+          <!-- Submit login -->
+          <button type="submit" class="btn-submit">Log in to HireReady</button>
+
+          <!-- Divider -->
+          <div class="divider"><span>or</span></div>
+
+          <!-- Old Google OAuth login kept for future integration/reference. -->
+          <!--
+          <button type="button" class="btn-google" onclick="window.location.href='/auth/google'">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+          -->
+
+          <!-- Guest mode demo login -->
+          <button type="submit" form="guest-login-form" class="btn-guest">Continue as guest</button>
+
+          <!-- Redirect to signup -->
+          <p class="auth-footer-text">
+            Don't have an account?
+            <a href="#" onclick="switchTab('signup'); return false;">Sign up free</a>
+          </p>
+
+        </form>
+
+
+        <!-- ── SIGNUP FORM ── -->
+        <form id="form-signup" class="auth-form hidden" method="POST" action="/auth/signup">
+
+          <!-- Flash messages again for signup -->
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+              {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+              {% endfor %}
+            {% endif %}
+          {% endwith %}
+
+          <!-- Full name -->
+          <div class="form-group">
+            <label class="form-label" for="signup-name">Full name</label>
+            <input
+              class="form-input"
+              type="text"
+              id="signup-name"
+              name="name"
+              placeholder="John Doe"
+              required
+              autocomplete="name"
+            />
+          </div>
+
+          <!-- Email -->
+          <div class="form-group">
+            <label class="form-label" for="signup-email">Email</label>
+            <input
+              class="form-input"
+              type="email"
+              id="signup-email"
+              name="email"
+              placeholder="you@email.com"
+              required
+              autocomplete="email"
+            />
+          </div>
+
+          <!-- Password with min length -->
+          <div class="form-group">
+            <label class="form-label" for="signup-password">Password</label>
+            <div class="input-wrap">
+              <input
+                class="form-input"
+                type="password"
+                id="signup-password"
+                name="password"
+                placeholder="Min. 8 characters"
+                required
+                minlength="8"
+                autocomplete="new-password"
+              />
+              <!-- Toggle password visibility -->
+              <button type="button" class="toggle-pw" onclick="togglePassword('signup-password', this)">
+                👁
+              </button>
+            </div>
+          </div>
+
+          <!-- Submit signup -->
+          <button type="submit" class="btn-submit">Create free account →</button>
+
+          <!-- Divider -->
+          <div class="divider"><span>or</span></div>
+
+          <!-- Old Google signup kept for future integration/reference. -->
+          <!--
+          <button type="button" class="btn-google" onclick="window.location.href='/auth/google'">
+            <svg width="16" height="16" viewBox="0 0 24 24">
+              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+              <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+              <path d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l3.66-2.84z" fill="#FBBC05"/>
+              <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
+            </svg>
+            Continue with Google
+          </button>
+          -->
+
+          <!-- Guest mode demo signup alternative -->
+          <button type="submit" form="guest-login-form" class="btn-guest">Continue as guest</button>
+
+          <!-- Redirect to login -->
+          <p class="auth-footer-text">
+            Already have an account?
+            <a href="#" onclick="switchTab('login'); return false;">Log in</a>
+          </p>
+
+        </form>
+
+        <form id="guest-login-form" method="POST" action="/auth/guest" hidden></form>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- External JS file (handles tab switching & password toggle) -->
+  <script src="{{ url_for('static', filename='js/login.js') }}"></script>
+
+</body>
+</html>

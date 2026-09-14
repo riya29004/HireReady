@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HireReady — Study Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+  <style>
+    .planner-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 20px; }
+    .planner-column { display: flex; flex-direction: column; gap: 20px; }
+    .planner-form { display: grid; grid-template-columns: 1fr 150px auto; gap: 10px; align-items: end; }
+    .planner-field { display: flex; flex-direction: column; gap: 6px; }
+    .planner-field label { color: var(--muted); font-size: .72rem; font-weight: 600; }
+    .planner-field input, .planner-field select {
+      width: 100%; padding: 10px 11px; border: 1px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg-card2); color: var(--text); font: inherit; outline: none;
+    }
+    .planner-field input:focus, .planner-field select:focus { border-color: var(--accent); }
+    .planner-add { height: 39px; padding: 0 15px; border: 0; border-radius: var(--radius-sm); background: var(--accent); color: #13202b; font-weight: 700; }
+    .planner-add:hover { background: var(--accent-dark); }
+    .planner-list { display: flex; flex-direction: column; gap: 10px; }
+    .planner-task { display: flex; align-items: center; gap: 11px; padding: 12px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-card2); }
+    .planner-task.done { opacity: .58; }
+    .planner-task.done .task-name { text-decoration: line-through; }
+    .task-check { width: 18px; height: 18px; accent-color: var(--accent); flex-shrink: 0; }
+    .task-main { min-width: 0; flex: 1; }
+    .task-name { color: var(--text); font-size: .88rem; font-weight: 600; overflow-wrap: anywhere; }
+    .task-meta { display: flex; gap: 8px; margin-top: 4px; color: var(--muted); font-size: .72rem; }
+    .task-subject { color: var(--accent); }
+    .task-remove { border: 0; background: transparent; color: var(--muted); font-size: 1.1rem; line-height: 1; padding: 5px; }
+    .task-remove:hover { color: #f28b82; }
+    .planner-empty { color: var(--muted); font-size: .85rem; padding: 10px 0; }
+    .planner-stat { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); color: var(--muted); font-size: .82rem; }
+    .planner-stat:last-child { border-bottom: 0; }
+    .planner-stat strong { color: var(--text); }
+    @media (max-width: 900px) { .planner-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 620px) { .planner-form { grid-template-columns: 1fr; } .planner-add { width: 100%; } }
+  </style>
+</head>
+<body>
+  <div class="sidebar-overlay" id="overlay" onclick="closeSidebar()"></div>
+
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <a href="/" class="brand-text">Hire<span>Ready</span></a>
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Collapse sidebar">&#9664;</button>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a href="/dashboard" class="nav-item"><span class="nav-icon">🏠</span><span class="nav-text">Dashboard</span></a>
+      <a href="/progress" class="nav-item"><span class="nav-icon">📊</span><span class="nav-text">Progress Report</span></a>
+      <a href="/planner" class="nav-item active"><span class="nav-icon">🗓️</span><span class="nav-text">Study Planner</span></a>
+      <div class="nav-section-label">Subjects</div>
+      <a href="/dsa" class="nav-item"><span class="nav-icon">🧩</span><span class="nav-text">DSA</span></a>
+      <a href="/dbms" class="nav-item"><span class="nav-icon">🗄️</span><span class="nav-text">DBMS</span></a>
+      <a href="/os" class="nav-item"><span class="nav-icon">💻</span><span class="nav-text">Operating Systems</span></a>
+      <a href="/cn" class="nav-item"><span class="nav-icon">🌐</span><span class="nav-text">Computer Networks</span></a>
+      <div class="nav-section-label">Practice</div>
+      <a href="/interview" class="nav-item"><span class="nav-icon">🎯</span><span class="nav-text">Mock Interview</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="user-pill">
+        <div class="user-avatar">{{ session.get('user_name', 'U')[0].upper() }}</div>
+        <div class="user-info"><div class="user-name">{{ session.get('user_name', 'User') }}</div><div class="user-email">{{ session.get('user_email', '') }}</div></div>
+      </div>
+      <button class="theme-toggle-row" onclick="toggleTheme()"><div class="theme-toggle-left"><span class="theme-icon" id="themeIcon">🌙</span><span class="theme-label nav-text" id="themeLabel">Dark mode</span></div><div class="toggle-switch"><div class="toggle-knob"></div></div></button>
+      <button class="logout-row" onclick="handleLogout()"><span class="logout-icon">⏻</span><span class="logout-text nav-text">Log out</span></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left"><button class="hamburger" onclick="toggleSidebar()" aria-label="Toggle sidebar">☰</button><div class="topbar-greeting">Study <span>Planner</span></div></div>
+    </header>
+
+    <main class="content">
+      <div class="planner-grid">
+        <div class="planner-column">
+          <div class="section-card">
+            <div class="section-card-header"><div class="section-card-title">🗓️ Plan a study task</div></div>
+            <div class="section-card-body">
+              <form class="planner-form" id="plannerForm">
+                <div class="planner-field"><label for="taskName">Task</label><input id="taskName" required maxlength="120" placeholder="e.g. Practice binary search"></div>
+                <div class="planner-field"><label for="taskSubject">Subject</label><select id="taskSubject"><option>DSA</option><option>DBMS</option><option>OS</option><option>CN</option><option>Interview</option></select></div>
+                <button class="planner-add" type="submit">Add task</button>
+              </form>
+            </div>
+          </div>
+          <div class="section-card">
+            <div class="section-card-header"><div class="section-card-title">✅ Your tasks</div><span class="section-card-action" id="taskCount">0 tasks</span></div>
+            <div class="section-card-body"><div class="planner-list" id="plannerList"><div class="planner-empty">No tasks planned yet.</div></div></div>
+          </div>
+        </div>
+        <aside class="section-card">
+          <div class="section-card-header"><div class="section-card-title">📌 Overview</div></div>
+          <div class="section-card-body">
+            <div class="planner-stat"><span>Total tasks</span><strong id="totalTasks">0</strong></div>
+            <div class="planner-stat"><span>Completed</span><strong id="completedTasks">0</strong></div>
+            <div class="planner-stat"><span>Remaining</span><strong id="remainingTasks">0</strong></div>
+          </div>
+        </aside>
+      </div>
+    </main>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+  <script>
+    const plannerStorageKey = 'hireready-planner-tasks';
+    let plannerTasks = JSON.parse(localStorage.getItem(plannerStorageKey) || '[]');
+    const list = document.getElementById('plannerList');
+
+    function savePlannerTasks() { localStorage.setItem(plannerStorageKey, JSON.stringify(plannerTasks)); }
+    function renderPlannerTasks() {
+      list.innerHTML = '';
+      if (!plannerTasks.length) list.innerHTML = '<div class="planner-empty">No tasks planned yet.</div>';
+      plannerTasks.forEach((task, index) => {
+        const item = document.createElement('div');
+        item.className = 'planner-task' + (task.done ? ' done' : '');
+        item.innerHTML = `<input class="task-check" type="checkbox" ${task.done ? 'checked' : ''} aria-label="Mark task complete"><div class="task-main"><div class="task-name"></div><div class="task-meta"><span class="task-subject"></span><span>${task.created}</span></div></div><button class="task-remove" type="button" title="Remove task" aria-label="Remove task">&times;</button>`;
+        item.querySelector('.task-name').textContent = task.name;
+        item.querySelector('.task-subject').textContent = task.subject;
+        item.querySelector('.task-check').addEventListener('change', (event) => { plannerTasks[index].done = event.target.checked; savePlannerTasks(); renderPlannerTasks(); });
+        item.querySelector('.task-remove').addEventListener('click', () => { plannerTasks.splice(index, 1); savePlannerTasks(); renderPlannerTasks(); });
+        list.appendChild(item);
+      });
+      const completed = plannerTasks.filter(task => task.done).length;
+      document.getElementById('taskCount').textContent = `${plannerTasks.length} task${plannerTasks.length === 1 ? '' : 's'}`;
+      document.getElementById('totalTasks').textContent = plannerTasks.length;
+      document.getElementById('completedTasks').textContent = completed;
+      document.getElementById('remainingTasks').textContent = plannerTasks.length - completed;
+    }
+
+    document.getElementById('plannerForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+      const nameInput = document.getElementById('taskName');
+      plannerTasks.push({ name: nameInput.value.trim(), subject: document.getElementById('taskSubject').value, done: false, created: new Date().toLocaleDateString() });
+      savePlannerTasks();
+      renderPlannerTasks();
+      nameInput.value = '';
+      nameInput.focus();
+    });
+    renderPlannerTasks();
+  </script>
+</body>
+</html>

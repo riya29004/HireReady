@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>HireReady — AI-Powered Interview Prep</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- url_for points to static/ at project root -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- ── NAV ── -->
+  <nav class="nav">
+    <a href="/" class="nav-brand">Hire<span>Ready</span></a>
+
+    <ul class="nav-links">
+      <li><a href="#subjects">Subjects</a></li>
+      <li><a href="#how">How it works</a></li>
+      <li><a href="/progress">Progress</a></li>
+      <li><a href="/interview">Mock Interview</a></li>
+    </ul>
+
+    <div class="nav-auth">
+      <a href="/login" class="btn-login">Log in</a>
+      <a href="/login" class="btn-signup">Sign up</a>
+    </div>
+  </nav>
+
+
+  <!-- ── HERO ── -->
+  <section class="hero">
+
+    <div class="hero-badge">
+      <span class="badge-dot"></span>
+      Multi-Agent AI System · Beta
+    </div>
+
+    <h1>
+      Hello, What Do You<br>
+      Want To <span class="green">Learn?</span>
+    </h1>
+
+    <p>
+      An AI multi-agent platform for CS interview prep. Chat with subject-specific
+      AI agents, get your doubts tracked over 7 days, and receive mock interviews
+      tailored to your weak topics.
+    </p>
+
+    <div class="search-wrap">
+      <input type="text" placeholder="Complete Interview Prep, DSA, DBMS, OS …"/>
+      <button class="search-btn" aria-label="Search">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none">
+          <circle cx="11" cy="11" r="7" stroke="#111" stroke-width="2.3"/>
+          <path d="M20 20l-3.5-3.5" stroke="#111" stroke-width="2.3" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="chips">
+      <button class="chip active">DSA</button>
+      <button class="chip">DBMS</button>
+      <button class="chip">Operating Systems</button>
+      <button class="chip">Computer Networks</button>
+      <button class="chip">Mock Interview</button>
+      <button class="chip">Progress Report</button>
+    </div>
+
+  </section>
+
+
+  <!-- ── STATS BAR ── -->
+  <div class="stats-bar">
+    <div class="stat">
+      <div class="stat-val">6<span>+</span></div>
+      <div class="stat-lbl">AI Agents</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">7<span>d</span></div>
+      <div class="stat-lbl">Doubt History</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">100<span>%</span></div>
+      <div class="stat-lbl">Personalised</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">∞</div>
+      <div class="stat-lbl">Mock Interviews</div>
+    </div>
+  </div>
+
+
+  <!-- ── SUBJECT AGENTS ── -->
+  <section class="section" id="subjects">
+
+    <div class="sec-tag">// AI Agents</div>
+    <h2 class="sec-title">Pick a subject, start learning</h2>
+    <p class="sec-desc">
+      Every subject has a dedicated AI agent. Ask your doubts, get concept
+      explanations — your session history is tracked automatically.
+    </p>
+
+    <div class="subject-grid">
+
+      <a href="/dsa" class="s-card">
+        <div class="s-icon ib">🧩</div>
+        <div class="s-title">DSA</div>
+        <div class="s-sub">Data Structures &amp; Algorithms</div>
+        <div class="s-cta">Start AI chat session →</div>
+      </a>
+
+      <a href="/dbms" class="s-card">
+        <div class="s-icon ip">🗄️</div>
+        <div class="s-title">DBMS</div>
+        <div class="s-sub">Database Management Systems</div>
+        <div class="s-cta">Start AI chat session →</div>
+      </a>
+
+      <a href="/os" class="s-card">
+        <div class="s-icon ir">💻</div>
+        <div class="s-title">Operating Systems</div>
+        <div class="s-sub">OS Concepts &amp; Internals</div>
+        <div class="s-cta">Start AI chat session →</div>
+      </a>
+
+      <a href="/cn" class="s-card">
+        <div class="s-icon ii">🌐</div>
+        <div class="s-title">Computer Networks</div>
+        <div class="s-sub">Networking Fundamentals</div>
+        <div class="s-cta">Start AI chat session →</div>
+      </a>
+
+      <a href="/interview" class="s-card">
+        <div class="s-icon it">🎯</div>
+        <div class="s-title">Mock Interview</div>
+        <div class="s-sub">AI-generated from your weak topics</div>
+        <div class="s-cta">Start mock interview →</div>
+      </a>
+
+      <a href="/progress" class="s-card">
+        <div class="s-icon io">📊</div>
+        <div class="s-title">Progress Report</div>
+        <div class="s-sub">7-day doubt history &amp; insights</div>
+        <div class="s-cta">View my progress →</div>
+      </a>
+
+    </div>
+  </section>
+
+
+  <!-- ── HOW IT WORKS ── -->
+  <div class="how-bg" id="how">
+    <section class="section">
+
+      <div class="sec-tag">// How it works</div>
+      <h2 class="sec-title">
+        Need help with<br>
+        <span class="green">Learning Roadmaps?</span>
+      </h2>
+      <p class="sec-desc">
+        From your first doubt to your final mock interview — here is how HireReady works.
+      </p>
+
+      <div class="steps-grid">
+        <div>
+          <div class="step-num">01</div>
+          <div class="step-title">Ask your doubt</div>
+          <div class="step-desc">
+            Chat with the subject AI agent anytime. Every doubt is
+            timestamped and stored for 7 days automatically.
+          </div>
+        </div>
+        <div>
+          <div class="step-num">02</div>
+          <div class="step-title">AI finds weak areas</div>
+          <div class="step-desc">
+            The system analyses your 7-day doubt history and
+            automatically identifies topics needing more practice.
+          </div>
+        </div>
+        <div>
+          <div class="step-num">03</div>
+          <div class="step-title">Mock interview generated</div>
+          <div class="step-desc">
+            Weak topics found? Targeted interview. Strong everywhere?
+            Mixed comprehensive interview. All AI-generated.
+          </div>
+        </div>
+        <div>
+          <div class="step-num">04</div>
+          <div class="step-title">Review progress</div>
+          <div class="step-desc">
+            Weekly report — doubts asked, topics covered, interview
+            scores and improvement trends in one dashboard.
+          </div>
+        </div>
+      </div>
+
+    </section>
+  </div>
+
+
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span>© 2025 HireReady · Multi-Agent AI Interview Prep</span>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Contact</a>
+    </div>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+</body>
+</html>
